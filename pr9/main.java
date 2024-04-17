@@ -1,45 +1,31 @@
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
 
 public class main {
-    private static final int PORT = 12345;
-    private static final int BUFFER_SIZE = 1024;
+public static void main(String args[]) throws IOException
+{
+DataInputStream in=new DataInputStream(System.in);
+String s;
+int w;
+BufferedImage img=ImageIO.read(new File("x1.jpg"));
+for(w=0;w<img.getWidth();w++)
+{
+for(int h=0;h<img.getHeight();h++)
+{
+Color oc=new Color(img.getRGB(w,h));
+int avg=((oc.getRed()+oc.getGreen()+oc.getBlue())/3);
+Color cc=new Color(avg,avg,avg);
+img.setRGB(w,h,cc.getRGB());
+}
+}
+System.out.println("Enter the Output FileName:");
+s=in.readLine();
+ImageIO.write(img,".jpg",new File(s+".jpg"));
+System.out.println("RGB image x1.jpg was successfully converted to Grayscale
+image stored in filename="+s+".jpg");
 
-    public static void main(String[] args) {
-        try {
-            DatagramSocket socket = new DatagramSocket(PORT);
-            System.out.println("Server started on port " + PORT);
-
-            // Create a thread to listen for incoming messages
-            Thread receiverThread = new Thread(() -> {
-                try {
-                    while (true) {
-                        byte[] buffer = new byte[BUFFER_SIZE];
-                        DatagramPacket packet = new DatagramPacket(buffer, BUFFER_SIZE);
-                        socket.receive(packet);
-
-                        String message = new String(packet.getData(), 0, packet.getLength());
-                        System.out.println("Client: " + message);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            receiverThread.start();
-
-            // Send messages to clients
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                String message = scanner.nextLine();
-                byte[] buffer = message.getBytes();
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getLocalHost(), PORT);
-                socket.send(packet);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+}
 }
